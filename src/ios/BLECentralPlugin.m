@@ -388,16 +388,19 @@
 #pragma mark - CBCentralManagerDelegate
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
+    @try {
+        [peripherals addObject:peripheral];
+        [peripheral setAdvertisementData:advertisementData RSSI:RSSI];
 
-    [peripherals addObject:peripheral];
-    [peripheral setAdvertisementData:advertisementData RSSI:RSSI];
-
-    if (discoverPeripherialCallbackId) {
-        CDVPluginResult *pluginResult = nil;
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[peripheral asDictionary]];
-        NSLog(@"Discovered %@", [peripheral asDictionary]);
-        [pluginResult setKeepCallbackAsBool:TRUE];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:discoverPeripherialCallbackId];
+        if (discoverPeripherialCallbackId) {
+            CDVPluginResult *pluginResult = nil;
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[peripheral asDictionary]];
+            NSLog(@"Discovered %@", [peripheral asDictionary]);
+            [pluginResult setKeepCallbackAsBool:TRUE];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:discoverPeripherialCallbackId];
+        }
+    }
+    @finally {
     }
 
 }
