@@ -67,6 +67,7 @@ public class BLECentralPlugin extends CordovaPlugin implements BluetoothAdapter.
 
     private static final String SETTINGS = "showBluetoothSettings";
     private static final String ENABLE = "enable";
+    private static final String DISABLE = "disable";
 
     private static final String START_STATE_NOTIFICATIONS = "startStateNotifications";
     private static final String STOP_STATE_NOTIFICATIONS = "stopStateNotifications";
@@ -74,6 +75,7 @@ public class BLECentralPlugin extends CordovaPlugin implements BluetoothAdapter.
     // callbacks
     CallbackContext discoverCallback;
     private CallbackContext enableBluetoothCallback;
+    private CallbackContext disableBluetoothCallback;
 
     private static final String TAG = "BLEPlugin";
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
@@ -228,8 +230,19 @@ public class BLECentralPlugin extends CordovaPlugin implements BluetoothAdapter.
         } else if (action.equals(ENABLE)) {
 
             enableBluetoothCallback = callbackContext;
-            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            cordova.startActivityForResult(this, intent, REQUEST_ENABLE_BLUETOOTH);
+            BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+            if (!mBluetoothAdapter.isEnabled()) {
+                mBluetoothAdapter.enable();
+            }
+
+
+        } else if (action.equals(DISABLE)) {
+
+            disableBluetoothCallback = callbackContext;
+            BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+            if (mBluetoothAdapter.isEnabled()) {
+                mBluetoothAdapter.disable();
+            }
 
         } else if (action.equals(START_STATE_NOTIFICATIONS)) {
 
@@ -295,6 +308,20 @@ public class BLECentralPlugin extends CordovaPlugin implements BluetoothAdapter.
             PluginResult result = new PluginResult(PluginResult.Status.OK, this.bluetoothStates.get(state));
             result.setKeepCallback(true);
             this.stateCallback.sendPluginResult(result);
+        }
+
+        if (this.enableBluetoothCallback != null && state == BluetoothAdapter.STATE_ON) {
+            PluginResult result = new PluginResult(PluginResult.Status.OK, this.bluetoothStates.get(state));
+            result.setKeepCallback(false);
+            this.enableBluetoothCallback.sendPluginResult(result);
+            this.enableBluetoothCallback = null;
+        }
+
+        if (this.disableBluetoothCallback != null && state == BluetoothAdapter.STATE_OFF) {
+            PluginResult result = new PluginResult(PluginResult.Status.OK, this.bluetoothStates.get(state));
+            result.setKeepCallback(false);
+            this.disableBluetoothCallback.sendPluginResult(result);
+            this.disableBluetoothCallback = null;
         }
     }
 
