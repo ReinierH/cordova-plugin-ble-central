@@ -390,7 +390,6 @@
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
     @try {
         [peripherals addObject:peripheral];
-        [peripheral setAdvertisementData:advertisementData RSSI:RSSI];
 
         if (discoverPeripherialCallbackId) {
             CDVPluginResult *pluginResult = nil;
